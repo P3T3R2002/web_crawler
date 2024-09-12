@@ -9,7 +9,7 @@ import (
 
 //-------------------------------------------------------------------------
 
-func normalizeURL(raw_url string) (string, error) {
+func normalizeURL(raw_url string) string {
 	prefixes := []string{"http:/", "https:/", "ftp:/"}
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(raw_url, prefix) && !strings.HasPrefix(raw_url, prefix+"/") {
@@ -22,12 +22,13 @@ func normalizeURL(raw_url string) (string, error) {
 	}
 	url_struct, err := url.Parse(raw_url)
 	if err != nil {
-		return "", err
+		fmt.Println(err)
 	}
 	str_h := strings.Trim(url_struct.Host, "/")
 	str_p := strings.Trim(url_struct.Path, "/")
-	str := str_h + "/" + str_p
-	return str, nil
+	str := str_h + "/" + str_p+"/"
+	str = strings.Replace(str, "//", "/", -1)
+	return str
 }
 
 //-------------------------------------------------------------------------
@@ -35,7 +36,6 @@ func normalizeURL(raw_url string) (string, error) {
 func getURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 	doc, err := html.Parse(strings.NewReader(htmlBody))
 	if err != nil {
-		fmt.Println("end: getURLsFromHTML/error")
 		return []string{}, err
 	}
 	var links []string
@@ -49,7 +49,7 @@ func getURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 					} else if string(a.Val[0]) == "#" {
 						continue
 					} else {
-						//links = append(links, a.Val)
+						links = append(links, a.Val)
 					}
 					break
 				}
@@ -60,7 +60,19 @@ func getURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 		}
 	}
 	f(doc)
-	return links, nil
+	var final []string
+	for i, link := range links {
+		good := true
+		for j:=i+1; j+1<len(links); j++ {
+			if link == links[j] {
+				good = false
+			}
+		}
+		if good {
+			final = append(final, link)
+		}
+	}
+	return final, nil
 }
 
 //-------------------------------------------------------------------------

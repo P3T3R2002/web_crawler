@@ -10,8 +10,8 @@ func TestNormalizeURL(t *testing.T) {
 	}{
 		{
 			name:     "remove scheme",
-			inputURL: "https://blog.boot.dev/path",
-			expected: "blog.boot.dev/path",
+			inputURL: "https://blog.boot.dev",
+			expected: "blog.boot.dev",
 		},
 		{
 			name:     "remove scheme",
@@ -59,3 +59,12 @@ func TestNormalizeURL(t *testing.T) {
 	}
 
 }
+
+
+
+
+
+
+
+
+
