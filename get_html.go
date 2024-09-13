@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"strconv"
 )
 
 //-------------------------------------------------------------------------
@@ -35,18 +36,29 @@ func getHTML(rawURL string) (string, error) {
 
 //-------------------------------------------------------------------------
 
-func getArg() string{
+func getArg() (string, int, int, error) {
 	arg := os.Args[1:]
 	if len(arg) < 1 {
-		fmt.Println("no website provided")
+		fmt.Println("no website provided -> website, concurrency, max_visit")
 		os.Exit(1)
-	} else if len(arg) > 1 {
-		fmt.Println("too many arguments provided")
+	} else if len(arg) < 3 {
+		fmt.Println("too few arguments provided -> website, concurrency, max_visit")
+		os.Exit(1)
+	} else if len(arg) > 3 {
+		fmt.Println("too many arguments provided -> website, concurrency, max_visit")
 		os.Exit(1)
 	} else {
 		fmt.Println("starting crawl of: " + arg[0])
 	}
-	return arg[0]
+	num_1, err := strconv.Atoi(arg[1])
+	if err != nil {
+		return "", 0, 0, err
+	}
+	num_2, err := strconv.Atoi(arg[2])
+	if err != nil {
+		return "", 0, 0, err
+	}
+	return arg[0], num_1, num_2, nil
 }
 
 //-------------------------------------------------------------------------

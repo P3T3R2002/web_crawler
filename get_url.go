@@ -48,6 +48,8 @@ func getURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 						links = append(links, rawBaseURL+a.Val)
 					} else if string(a.Val[0]) == "#" {
 						continue
+					} else if !strings.HasPrefix(a.Val, "http") {
+						links = append(links, rawBaseURL+a.Val)
 					} else {
 						links = append(links, a.Val)
 					}
@@ -61,7 +63,22 @@ func getURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 	}
 	f(doc)
 	var final []string
+	base_url_struct, err := url.Parse(rawBaseURL)
+	if err != nil {
+		return []string{}, err
+	}
+	normal_base := normalizeURL(base_url_struct.Host)
 	for i, link := range links {
+		current_url_struct, err := url.Parse(link)
+		if err != nil {
+			return []string{}, err
+		}
+
+		normal_current := normalizeURL(current_url_struct.Host)
+		if normal_base != normal_current {
+			continue
+		}
+
 		good := true
 		for j:=i+1; j+1<len(links); j++ {
 			if link == links[j] {
