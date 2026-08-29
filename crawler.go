@@ -10,7 +10,9 @@ import (
 
 func crawler(base, current string, visited *[]string) error {
 	*visited = append(*visited, normalizeURL(current))
-	html, err := getHTML(current)
+
+	//html, err := getHTML(current)
+	html, err := getHTMLdp(current)
 	if err != nil {
 		if err.Error() == "error Header: not text/html" {
 			return nil
@@ -116,6 +118,8 @@ func (cfg *Config) crawler_concurrent(CurrentURL string) error {
 	fmt.Printf("-> %s\n", CurrentURL)
 	//*************
 	cfg.mu.Lock()
+	get_urls(CurrentURL)
+	return nil
 	urls, err := cfg.get_urls(CurrentURL)
 	cfg.mu.Unlock()
 	if err != nil {
@@ -192,7 +196,8 @@ func (cfg *Config) reach_max_visit() {
 //-------------------------------------------------------------------------
 
 func (cfg *Config) get_urls(CurrentURL string) ([]string, error) {
-	html, err := getHTML(CurrentURL)
+	//html, err := getHTML(CurrentURL)
+	html, err := getHTMLdp(CurrentURL)
 	if err != nil {
 		if error.Error(err) == "error Header: not text/html" {
 			return []string{}, nil
@@ -213,10 +218,8 @@ func (cfg *Config) get_urls(CurrentURL string) ([]string, error) {
 //+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+//
 
 func get_urls(CurrentURL string) {
-	html, _ := getHTML(CurrentURL)
-	//*************
+	//html, _ := getHTML(CurrentURL)
+	html, _ := getHTMLdp(CurrentURL)
 	urls, _ := getURLsFromHTML(html, CurrentURL)
-	for _, url := range urls {
-		fmt.Println(url)
-	}
+	saveLinksToFile("listings.txt", urls)
 }
